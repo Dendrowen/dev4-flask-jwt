@@ -9,12 +9,39 @@ function register(e) {
 
 function login() {
     // Fetch data from html
-
+    data = {
+        password: getValue("password2"),
+        email: getValue("email2"),
+    };
     // Submit data to API
+    
+    api("auth", 'POST', data).then((res) => {
+        if (res.message == 'success') {
+            // Save the received JWT in a cookie
+            setCookie("token", res.access_token, 365);
+            console.log("gelukt")
+            getUser();
+           
+
+        } else {
+            alert("Credentials are incorrect");
+        }
+    });
+    
 }
 
 function getUser() {
     // Fetch user data from API
+    api("me").then((res) => {
+        if (res.message == 'success') {
+            document.getElementById('welcome').innerText = `Welcome, ${res.user.firstname} ${res.user.lastname}`;
+            console.log("user id: " + res.user.id)
+            console.log(res.user.admin)
+        }
+            else {
+                console.log("error")
+        }
+    });
 }
 
 function logout(){
@@ -31,6 +58,7 @@ function showPage(id){
     }
     document.getElementById(id).style.display = "block";
 }
+
 
 function bindEvents() {
     connectButton("register", register);
@@ -68,7 +96,7 @@ function getValue(id) {
 }
 
 function api(endpoint, method = 'GET', data = {}) {
-    const API = "http://localhost:5000/";
+    const API = "http://127.0.0.1:5000/";
     return fetch(API + endpoint, {
         method: method,
         mode: "cors",
